@@ -36,9 +36,16 @@ var path = require('path');   //Comes with Default Node installation.
 var mongoose = require('mongoose');
 var config = require('./config/database.js');
 var bodyParser = require('body-parser');
+//Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
 var session = require('express-session');
+//Create a session middleware with the given options.
+//Session data is not saved in the cookie itself, just the session ID. Session data is stored server-side.
+
 var expressValidator = require('express-validator');
+//Required for validation of information such as e-mail addresses.
+
 //var expressMessages = require('express-messages');
+
 
 //Testing Database
 
@@ -88,6 +95,10 @@ app.set('view engine', 'ejs');
 //You need to enable it using the following built-in middleware.
 app.use(express.static(path.join(__dirname,'public')));
 
+
+//Set global errors variable
+app.locals.errors = null;
+
 //Body Parser Middleware 
 
 // parse application/x-www-form-urlencoded
@@ -125,6 +136,7 @@ app.use(expressValidator({
   }));
 
 //Express Messages Middleware
+//The flash is a special area of the session used for storing messages. Messages are written to the flash and cleared after being displayed to the user. The flash is typically used in combination with redirects, ensuring that the message is available to the next page that is to be rendered.
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
   res.locals.messages = require('express-messages')(req, res);
