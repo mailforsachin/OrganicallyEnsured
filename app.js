@@ -7,6 +7,7 @@
    git status
    git commit -a -m "Initial Commmit"
    git push azureprod master -f
+   git reset --hard  //Reseting the project
 
 
     npm init
