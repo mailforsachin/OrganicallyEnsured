@@ -6,13 +6,19 @@
    git add .
    git status
    git commit -a -m "Initial Commmit"
-   git push azureprod master
+   git push azureprod master -f
 
 
     npm init
     npm install --g nodemon  //Installs globally
     npm install --save express ejs express mongoose
     nodemon app.js
+    npm install --save body-parser
+    npm install --save express-session
+    npm install --save express-validator
+    npm install --save express-messages
+    npm install -save connect-flash
+
 
     "Routes" to forward the supported requests (and any information encoded in request URLs) 
     to the appropriate controller functions.
@@ -27,7 +33,11 @@
 var express = require('express');
 var path = require('path');   //Comes with Default Node installation.
 var mongoose = require('mongoose');
-var config = require('./config/database.js')
+var config = require('./config/database.js');
+var bodyParser = require('body-parser');
+var session = require('express-session');
+var expressValidator = require('express-validator');
+//var expressMessages = require('express-messages');
 
 //Testing Database
 
@@ -77,12 +87,55 @@ app.set('view engine', 'ejs');
 //You need to enable it using the following built-in middleware.
 app.use(express.static(path.join(__dirname,'public')));
 
-//Test app
-app.get('/',function(req,res){
+//Body Parser Middleware 
 
-    res.send("Working");
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
 
+// parse application/json
+app.use(bodyParser.json());
+
+//Express session Middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+  }))
+
+//Express validator middleware
+
+// In this example, the formParam value is going to get morphed into form body format useful for printing.
+app.use(expressValidator({
+    errorFormatter: function(param, msg, value) {
+        var namespace = param.split('.')
+        , root    = namespace.shift()
+        , formParam = root;
+  
+      while(namespace.length) {
+        formParam += '[' + namespace.shift() + ']';
+      }
+      return {
+        param : formParam,
+        msg   : msg,
+        value : value
+      };
+    }
+  }));
+
+//Express Messages Middleware
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
 });
+
+// Set routes
+var pages = require('./routes/pages.js');
+app.use('/',pages);
+
+var adminPages = require('./routes/admin_pages.js');
+app.use('/admin/pages',adminPages);
 
 //Start the server
 var port = 3000;
