@@ -2,15 +2,15 @@ var mongoose= require('mongoose');
 
 var PageSchema = mongoose.Schema({
     title:{
-        type: string,
+        type: String,
         required: true
     },
     slug:{
-        type: string,
+        type: String
         
     },
     content:{
-        type: string,
+        type: String,
         required: true
     },
     sorting:{
